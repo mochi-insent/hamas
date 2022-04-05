@@ -1,3 +1,4 @@
+#   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
