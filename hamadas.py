@@ -1,4 +1,5 @@
-#   ラベルプリンタPC から
+#   ■基本測定データの判定ver2(20220311)対応
+# #   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -18,8 +19,13 @@ def write_list_2d(sheet, l_2d, start_row, start_col):
 
 # 監視対象ディレクトリを指定する
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
-ref_file = '■基本測定データの判定(20211224) - コピー.xlsm'
+#   ref_file = '■基本測定データの判定(20211224) - コピー.xlsm'
+ref_file = '■基本測定データの判定ver2(20220311) - コピー.xlsm'
 dst_file = '★基本測定データの判定.xlsm'
+
+#   貼り付け先シート（固定！）　　★他のシートにも拡張必要
+#   h_sheet = '7ｻﾝﾌﾟﾙ3周(Z)'      #   基本測定データの判定(20211224)対応
+h_sheet_name = '7ｻﾝﾌﾟﾙ3周'               #   ■基本測定データの判定ver2(20220311)対応
 
 # FileSystemEventHandler の継承クラスを作成
 class FileChangeHandler(FileSystemEventHandler):
@@ -54,7 +60,8 @@ class FileChangeHandler(FileSystemEventHandler):
                      prt_values_ss.append(data)
 
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
-             h_sheet = hamadabook['7ｻﾝﾌﾟﾙ3周(Z)']
+             h_sheet = hamadabook[h_sheet_name]
+
              #   prtデータを貼り付け（行、列　＝　４，３から）
              write_list_2d(h_sheet, prt_values_ss, 4, 3)
 
@@ -85,7 +92,8 @@ class FileChangeHandler(FileSystemEventHandler):
                      abs_values_ss.append(data)
  
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
-             h_sheet = hamadabook['7ｻﾝﾌﾟﾙ3周(Z)']
+             h_sheet = hamadabook[h_sheet_name]
+
              #   absデータを貼り付け（行、列　＝　６５，２から）
              write_list_2d(h_sheet, abs_values_ss, 65, 2)
 
