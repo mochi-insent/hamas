@@ -46,13 +46,14 @@ class FileChangeHandler(FileSystemEventHandler):
      def on_created(self, event):
          filepath = event.src_path
          filename = os.path.basename(filepath)
+         dst_dir = filepath[:(filepath.rfind('\\')+1)]
          print('%s created' % filename)
          #   リストに列名をつけて取り込んだ列長がデコボコにならないようにする
          col_name = ['c{0:02d}'.format(i) for i in range(20)]
          if filename[-7:-4] == 'prt':
-             if os.path.exists(target_dir + dst_file):
+             if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む
-                 hamadabook = openpyxl.load_workbook(target_dir + dst_file, keep_vba=True)
+                 hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
@@ -79,12 +80,12 @@ class FileChangeHandler(FileSystemEventHandler):
              write_list_2d(h_sheet, prt_values_ss, start_row=start_row_prt, start_col=start_col_prt)
 
              #   excelファイル保存
-             hamadabook.save(target_dir + dst_file)
+             hamadabook.save(dst_dir + dst_file)
 
          elif   filename[-7:-4] == 'abs':
-             if os.path.exists(target_dir + dst_file):
+             if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む
-                 hamadabook = openpyxl.load_workbook(target_dir + dst_file, keep_vba=True)
+                 hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
@@ -115,7 +116,7 @@ class FileChangeHandler(FileSystemEventHandler):
              write_list_2d(h_sheet, abs_values_ss, start_row=start_row_abs, start_col=start_col_abs)
 
              #   excelファイル保存
-             hamadabook.save(target_dir + dst_file)
+             hamadabook.save(dst_dir + dst_file)
 
 
      # ファイル変更時のイベント
