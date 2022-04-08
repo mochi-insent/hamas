@@ -21,8 +21,8 @@ def write_list_2d(sheet, l_2d, start_row, start_col):
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
 dst_file = '★基本測定データの判定.xlsm'
 
-#   Ver = 'ver_20211224'
-Ver = 'ver_20220311'
+Ver = 'ver_20211224'
+#   Ver = 'ver_20220311'
 
 if Ver == 'ver_20211224':
     ref_file = '■基本測定データの判定(20211224) - コピー.xlsm'
@@ -97,13 +97,17 @@ class FileChangeHandler(FileSystemEventHandler):
              #
              #   absから切り出す範囲がフレキシブルであるときの処理、空欄（Nan）が見つかるまで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
              #
+             #  abs_values_ss = []
+             #  for row, data in abs_values_s.iterrows():
+             #    if data.hasnans:
+             #        break
+             #    else:
+             #        abs_values_ss.append(data)
+
              abs_values_ss = []
              for row, data in abs_values_s.iterrows():
-                 if data.hasnans:
-                     break
-                 else:
-                     abs_values_ss.append(data)
- 
+                 abs_values_ss.append(data)
+
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
              h_sheet = hamadabook[h_sheet_name]
 
