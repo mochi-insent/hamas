@@ -7,7 +7,7 @@ eventcreate /id 999 /l application /t information /d "%I_TEST%"
 
 set dt=%date%
 set dtnm=%dt:~0,4%%dt:~5,2%%dt:~8,2%-%COMPUTERNAME%-
-set tm=%time%
+set tm=%time: =0%
 set tmnm=%tm:~0,2%%tm:~3,2%%tm:~6,2%.log
 set FName=C:\Users\Mochida.Tetsuya\Documents\CMD\LOG\%dtnm%%tmnm%
 
