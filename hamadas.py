@@ -1,4 +1,4 @@
-#   ■基本測定データの判定ver2(20220311)対応
+#   ■基本測定データの判定ver2(20220411)　対応
 # #   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
 from watchdog.events import FileSystemEventHandler
@@ -21,19 +21,27 @@ def write_list_2d(sheet, l_2d, start_row, start_col):
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
 dst_file = '★基本測定データの判定.xlsm'
 
-Ver = 'ver_20211224'
+Ver = 'ver_20220411'
+#   Ver = 'ver_20211224'
 #   Ver = 'ver_20220311'
 
 if Ver == 'ver_20211224':
     ref_file = '■基本測定データの判定(20211224) - コピー.xlsm'
-    h_sheet_name = '7ｻﾝﾌﾟﾙ3周(Z)'               #   ■基本測定データの判定ver2(20220311)対応
+    h_sheet_name = '7ｻﾝﾌﾟﾙ3周(Z)'              
     start_row_prt = 4
     start_col_prt = 3
     start_row_abs = 65
     start_col_abs = 2
 elif Ver == 'ver_20220311':
     ref_file = '■基本測定データの判定ver2(20220311) - コピー.xlsm'
-    h_sheet_name = 'データ貼付け用'               #   ■基本測定データの判定ver2(20220311)対応  
+    h_sheet_name = 'データ貼付け用'               
+    start_row_prt = 1
+    start_col_prt = 17
+    start_row_abs = 1
+    start_col_abs = 2
+elif Ver == 'ver_20220411':
+    ref_file = '■基本測定データの判定ver2(20220411) - コピー.xlsm'
+    h_sheet_name = 'データ貼付け用'               
     start_row_prt = 1
     start_col_prt = 17
     start_row_abs = 1
@@ -60,18 +68,26 @@ class FileChangeHandler(FileSystemEventHandler):
              #   prt読み込み実行
              prt_values = pd.read_csv(filepath, header = None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
              #   必要なデータ部分を切り取る
-             prt_values_s = prt_values.iloc[23:78, 0:17]
+             if Ver == 'ver_20211224':
+                 prt_values_s = prt_values.iloc[23:78, 0:17]
+             elif Ver == 'ver_20220411':
+                 prt_values_s = prt_values.iloc[:, 0:17]
  
              #
              #   prtから切り出す範囲がフレキシブルであるときの処理、'センサー間の相関係数'の手前まで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
              #
              prt_values_ss = []
              data = []
-             for row, data in prt_values_s.iterrows():
-                 if data[0] == 'センサー間の相関係数':
-                     break
-                 else:
-                     prt_values_ss.append(data)
+
+             if Ver == 'ver_20211224':
+                for row, data in prt_values_s.iterrows():
+                    if data[0] == 'センサー間の相関係数':
+                        break
+                    else:
+                        prt_values_ss.append(data)
+             elif Ver == 'ver_20220411':
+                 for row, data in prt_values_s.iterrows():
+                        prt_values_ss.append(data)
 
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
              h_sheet = hamadabook[h_sheet_name]
@@ -93,7 +109,10 @@ class FileChangeHandler(FileSystemEventHandler):
              abs_values = pd.read_csv(filepath, header=None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
  
              #   必要なデータ部分を切り取る
-             abs_values_s = abs_values.iloc[:, 3:14]
+             if Ver == 'ver_20211224':
+                 abs_values_s = abs_values.iloc[:, 3:14]
+             elif Ver == 'ver_20220411':
+                 abs_values_s = abs_values.iloc[:, 3:14]
  
              #
              #   absから切り出す範囲がフレキシブルであるときの処理、空欄（Nan）が見つかるまで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
