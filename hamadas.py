@@ -7,8 +7,9 @@ from watchdog.observers import Observer
 # ファイルアクセスとスリープのため、osとtimeをインポート
 import os
 import time
-import pandas as pd
+#   import pandas as pd
 import openpyxl
+import csv
 
 def write_list_2d(sheet, l_2d, start_row, start_col):
     for y, row in enumerate(l_2d):
@@ -66,28 +67,15 @@ class FileChangeHandler(FileSystemEventHandler):
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
              #   prt読み込み実行
-             prt_values = pd.read_csv(filepath, header = None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+             #  prt_values = pd.read_csv(filepath, header = None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+             with open(filepath,newline="") as csvf:
+                 prt_values=csv.reader(csvf)
              #   必要なデータ部分を切り取る
              if Ver == 'ver_20211224':
                  prt_values_s = prt_values.iloc[23:78, 0:17]
              elif Ver == 'ver_20220411':
-                 prt_values_s = prt_values.iloc[:, 0:17]
+                 prt_values_ss = prt_values[:, 0:17]
  
-             #
-             #   prtから切り出す範囲がフレキシブルであるときの処理、'センサー間の相関係数'の手前まで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
-             #
-             prt_values_ss = []
-             data = []
-
-             if Ver == 'ver_20211224':
-                for row, data in prt_values_s.iterrows():
-                    if data[0] == 'センサー間の相関係数':
-                        break
-                    else:
-                        prt_values_ss.append(data)
-             elif Ver == 'ver_20220411':
-                 for row, data in prt_values_s.iterrows():
-                        prt_values_ss.append(data)
 
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
              h_sheet = hamadabook[h_sheet_name]
@@ -97,6 +85,7 @@ class FileChangeHandler(FileSystemEventHandler):
 
              #   excelファイル保存
              hamadabook.save(dst_dir + dst_file)
+             hamadabook.close()
 
          elif   filename[-7:-4] == 'abs':
              if os.path.exists(dst_dir + dst_file):
@@ -106,13 +95,18 @@ class FileChangeHandler(FileSystemEventHandler):
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
              #   abs読み込み実行
-             abs_values = pd.read_csv(filepath, header=None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+             #   abs_values = pd.read_csv(filepath, header=None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+                 with open(filepath,newline="") as csvf:
+                    abs_values = csv.reader(csvf)
+                    abs_values_s = [row for row in abs_values]
  
              #   必要なデータ部分を切り取る
              if Ver == 'ver_20211224':
                  abs_values_s = abs_values.iloc[:, 3:14]
              elif Ver == 'ver_20220411':
-                 abs_values_s = abs_values.iloc[:, 3:14]
+                 #  abs_values_s = abs_values.iloc[:, 0:14]
+                 col = abs_values_s[0].index('温度センサー')
+                 abs_values_ss = [r[0:col] for r in abs_values_s]
  
              #
              #   absから切り出す範囲がフレキシブルであるときの処理、空欄（Nan）が見つかるまで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
@@ -124,9 +118,13 @@ class FileChangeHandler(FileSystemEventHandler):
              #    else:
              #        abs_values_ss.append(data)
 
-             abs_values_ss = []
-             for row, data in abs_values_s.iterrows():
-                 abs_values_ss.append(data)
+             #
+             #   absから切り出す範囲がフレキシブルであるときの処理。カラム方向に温度センサの手前まで読む。
+             #
+
+             #   abs_values_ss = []
+             #   for row, data in abs_values_s.iterrows():
+             #       abs_values_ss.append(data)
 
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
              h_sheet = hamadabook[h_sheet_name]
@@ -136,6 +134,7 @@ class FileChangeHandler(FileSystemEventHandler):
 
              #   excelファイル保存
              hamadabook.save(dst_dir + dst_file)
+             hamadabook.close()
 
 
      # ファイル変更時のイベント
