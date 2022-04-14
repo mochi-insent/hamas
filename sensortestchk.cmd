@@ -1,9 +1,11 @@
  
-rem ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°ã®èª¬æ˜Žæ¬„ã«è¡¨ç¤ºã™ã‚‹ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å®šç¾©
-set I_TEST=sensor test result check(Hama's excel)
+rem 				(1.0)2022.4.14, T.Mochida
+
+rem ƒCƒxƒ“ƒgƒƒO‚Ìà–¾—“‚É•\Ž¦‚·‚éƒƒbƒZ[ƒW‚ð’è‹`
+rem set I_TEST=sensor test result check(Hama's excel)  // ƒ†[ƒUƒ‚[ƒh@ƒCƒxƒ“ƒgƒƒO‘‚«o‚µ‚ÍƒRƒƒ“ƒgƒAƒEƒg
  
-rem ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°ã«æ›¸ãå‡ºã—
-eventcreate /id 999 /l application /t information /d "%I_TEST%"
+rem ƒCƒxƒ“ƒgƒƒO‚É‘‚«o‚µ
+rem eventcreate /id 999 /l application /t information /d "%I_TEST%"@// ƒ†[ƒUƒ‚[ƒh@ƒCƒxƒ“ƒgƒƒO‘‚«o‚µ‚ÍƒRƒƒ“ƒgƒAƒEƒg
 
 set dt=%date%
 set dtnm=%dt:~0,4%%dt:~5,2%%dt:~8,2%-%COMPUTERNAME%-
@@ -11,6 +13,10 @@ set tm=%time: =0%
 set tmnm=%tm:~0,2%%tm:~3,2%%tm:~6,2%.log
 set FName=C:\Users\Mochida.Tetsuya\Documents\CMD\LOG\%dtnm%%tmnm%
 
-python C:\Users\Mochida.Tetsuya\source\repos\hamas\hamadas.py > %FName%
+rem -----------------------------------------------------------------
+rem uƒZƒ“ƒTƒ`ƒFƒbƒNƒf[ƒ^“\•tƒvƒƒOƒ‰ƒ€v‚ðŽÀs‚µ‚Ü‚·
+rem -----------------------------------------------------------------
+
+python \\192.168.24.27\disk1\New‹¤’Ê\¶ŽY•”\•iŽ¿•ÛØ\05_¶ŽY\02_¶ŽYŠÇ—\02_H’öŠÇ—\‘ª’è’l‹L˜^Ž©“®‰»\à_“c‚³‚ñEXCEL\BG\hamadas.py > %FName%
 
 
