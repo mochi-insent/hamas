@@ -1,6 +1,7 @@
 #   ■基本測定データの判定ver2(20220411)　対応
 # #   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
+import re
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -17,6 +18,13 @@ def write_list_2d(sheet, l_2d, start_row, start_col):
             sheet.cell(row=start_row + y,
                        column=start_col + x,
                        value=l_2d[y][x])
+
+def to_float(s):
+    try:
+        return float(s)
+    except ValueError:
+        return s
+
 
 # 監視対象ディレクトリを指定する
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
@@ -70,18 +78,21 @@ class FileChangeHandler(FileSystemEventHandler):
              #  prt_values = pd.read_csv(filepath, header = None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
              with open(filepath,newline="") as csvf:
                  prt_values=csv.reader(csvf)
+                 prt_values_s = [row for row in prt_values]
+
              #   必要なデータ部分を切り取る
              if Ver == 'ver_20211224':
                  prt_values_s = prt_values.iloc[23:78, 0:17]
              elif Ver == 'ver_20220411':
-                 prt_values_ss = prt_values[:, 0:17]
+                 prt_values_ss = [r[0:17] for r in prt_values_s]
+            
+             prt_values_sf = [[to_float(ss) for ss in s] for s in prt_values_ss]
  
-
              #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
              h_sheet = hamadabook[h_sheet_name]
 
              #   prtデータを貼り付け（行、列　＝　４，３から）
-             write_list_2d(h_sheet, prt_values_ss, start_row=start_row_prt, start_col=start_col_prt)
+             write_list_2d(h_sheet, prt_values_sf, start_row=start_row_prt, start_col=start_col_prt)
 
              #   excelファイル保存
              hamadabook.save(dst_dir + dst_file)
@@ -96,9 +107,9 @@ class FileChangeHandler(FileSystemEventHandler):
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
              #   abs読み込み実行
              #   abs_values = pd.read_csv(filepath, header=None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
-                 with open(filepath,newline="") as csvf:
-                    abs_values = csv.reader(csvf)
-                    abs_values_s = [row for row in abs_values]
+             with open(filepath,newline="") as csvf:
+                 abs_values = csv.reader(csvf)
+                 abs_values_s = [row for row in abs_values]
  
              #   必要なデータ部分を切り取る
              if Ver == 'ver_20211224':
@@ -107,6 +118,8 @@ class FileChangeHandler(FileSystemEventHandler):
                  #  abs_values_s = abs_values.iloc[:, 0:14]
                  col = abs_values_s[0].index('温度センサー')
                  abs_values_ss = [r[0:col] for r in abs_values_s]
+
+             abs_values_sf = [[to_float(ss) for ss in s] for s in abs_values_ss]
  
              #
              #   absから切り出す範囲がフレキシブルであるときの処理、空欄（Nan）が見つかるまで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
@@ -130,7 +143,7 @@ class FileChangeHandler(FileSystemEventHandler):
              h_sheet = hamadabook[h_sheet_name]
 
              #   absデータを貼り付け（行、列　＝　６５，２から）
-             write_list_2d(h_sheet, abs_values_ss, start_row=start_row_abs, start_col=start_col_abs)
+             write_list_2d(h_sheet, abs_values_sf, start_row=start_row_abs, start_col=start_col_abs)
 
              #   excelファイル保存
              hamadabook.save(dst_dir + dst_file)
