@@ -1,17 +1,16 @@
 #   ■基本測定データの判定ver2(20220411)　対応
 # #   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
-import re
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 # ファイルアクセスとスリープのため、osとtimeをインポート
 import os
 import time
-#   import pandas as pd
 import openpyxl
 import csv
 
+#   矩形コピペ、リストl_2d（２次元）を指定シートの指定位置から貼る
 def write_list_2d(sheet, l_2d, start_row, start_col):
     for y, row in enumerate(l_2d):
         for x, cell in enumerate(row):
@@ -19,6 +18,7 @@ def write_list_2d(sheet, l_2d, start_row, start_col):
                        column=start_col + x,
                        value=l_2d[y][x])
 
+#   浮動小数点の文字列を数値に変換。浮動小数点の格好をしていないものはそのまま返す。
 def to_float(s):
     try:
         return float(s)
@@ -28,12 +28,15 @@ def to_float(s):
 
 # 監視対象ディレクトリを指定する
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
+
+#   出力ファイル名
 dst_file = '★基本測定データの判定.xlsm'
 
 Ver = 'ver_20220411'
 #   Ver = 'ver_20211224'
 #   Ver = 'ver_20220311'
 
+#  濱田さん判定ファイルごとに貼付け場所を指定
 if Ver == 'ver_20211224':
     ref_file = '■基本測定データの判定(20211224) - コピー.xlsm'
     h_sheet_name = '7ｻﾝﾌﾟﾙ3周(Z)'              
@@ -65,8 +68,7 @@ class FileChangeHandler(FileSystemEventHandler):
          filename = os.path.basename(filepath)
          dst_dir = filepath[:(filepath.rfind('\\')+1)]
          print('%s created' % filename)
-         #   リストに列名をつけて取り込んだ列長がデコボコにならないようにする
-         col_name = ['c{0:02d}'.format(i) for i in range(20)]
+         #  ｐｒｔファイル処理
          if filename[-7:-4] == 'prt':
              if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む
@@ -74,8 +76,7 @@ class FileChangeHandler(FileSystemEventHandler):
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
-             #   prt読み込み実行
-             #  prt_values = pd.read_csv(filepath, header = None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+             #  ファイルを２次元リストとして取り込む（イテレータ反復処理）
              with open(filepath,newline="") as csvf:
                  prt_values=csv.reader(csvf)
                  prt_values_s = [row for row in prt_values]
@@ -86,9 +87,10 @@ class FileChangeHandler(FileSystemEventHandler):
              elif Ver == 'ver_20220411':
                  prt_values_ss = [r[0:17] for r in prt_values_s]
             
+             #  数字文字列を数値（浮動小数点）に変換
              prt_values_sf = [[to_float(ss) for ss in s] for s in prt_values_ss]
  
-             #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
+             #   貼り付け先シート（固定！）　　
              h_sheet = hamadabook[h_sheet_name]
 
              #   prtデータを貼り付け（行、列　＝　４，３から）
@@ -98,6 +100,7 @@ class FileChangeHandler(FileSystemEventHandler):
              hamadabook.save(dst_dir + dst_file)
              hamadabook.close()
 
+         #  ａｂｓファイル処理
          elif   filename[-7:-4] == 'abs':
              if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む
@@ -105,8 +108,7 @@ class FileChangeHandler(FileSystemEventHandler):
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(target_dir + ref_file, keep_vba=True)
-             #   abs読み込み実行
-             #   abs_values = pd.read_csv(filepath, header=None, encoding = "shift-jis", names = col_name, skip_blank_lines=False)
+             #   ファイルを２次元リストとして取り込む（イテレータ反復処理）
              with open(filepath,newline="") as csvf:
                  abs_values = csv.reader(csvf)
                  abs_values_s = [row for row in abs_values]
@@ -115,31 +117,17 @@ class FileChangeHandler(FileSystemEventHandler):
              if Ver == 'ver_20211224':
                  abs_values_s = abs_values.iloc[:, 3:14]
              elif Ver == 'ver_20220411':
-                 #  abs_values_s = abs_values.iloc[:, 0:14]
-                 col = abs_values_s[0].index('温度センサー')
+                 try:
+                     col = abs_values_s[0].index('温度センサー')
+                 #  温度センサーがない場合はＭ列まで取り込む
+                 except:
+                     col = 13
                  abs_values_ss = [r[0:col] for r in abs_values_s]
 
+             #  数字文字列を数値（浮動小数点）に変換
              abs_values_sf = [[to_float(ss) for ss in s] for s in abs_values_ss]
  
-             #
-             #   absから切り出す範囲がフレキシブルであるときの処理、空欄（Nan）が見つかるまで読む。固定範囲のときはprt_values_s が単純にprt_values_ss　にコピーされる。
-             #
-             #  abs_values_ss = []
-             #  for row, data in abs_values_s.iterrows():
-             #    if data.hasnans:
-             #        break
-             #    else:
-             #        abs_values_ss.append(data)
-
-             #
-             #   absから切り出す範囲がフレキシブルであるときの処理。カラム方向に温度センサの手前まで読む。
-             #
-
-             #   abs_values_ss = []
-             #   for row, data in abs_values_s.iterrows():
-             #       abs_values_ss.append(data)
-
-             #   貼り付け先シート（固定！）　　★他のシートにも拡張必要
+             #   貼り付け先シート（固定！）
              h_sheet = hamadabook[h_sheet_name]
 
              #   absデータを貼り付け（行、列　＝　６５，２から）
