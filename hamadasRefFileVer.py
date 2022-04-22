@@ -1,4 +1,4 @@
-#   ■基本測定データの判定ver2(20220411)　対応
+#   ###### センサ基本測定データ判定ファイル名.txt　で読み込み元ファイル名を指定する　#######
 # #   ラベルプリンタPC から
 # ファイル変更イベント検出のため、watchdogをインポート
 import re
@@ -28,7 +28,7 @@ def to_float(s):
 
 
 # 監視対象ディレクトリ
-target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
+target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\管理ファイル\\WORK\\'
 
 # 参照ファイル名
 f = open(target_dir + 'BG\\' + 'センサ基本測定データ判定ファイル名.txt', 'r', encoding='UTF-8')
@@ -53,11 +53,16 @@ class FileChangeHandler(FileSystemEventHandler):
          filename = os.path.basename(filepath)
          dst_dir = filepath[:(filepath.rfind('\\')+1)]
          print('%s created' % filename)
+
+         #   abs、prt いずれも処理が終わったかどうかを調べるフラグ
+         flg_rename = 0
+
          #  ｐｒｔファイル処理
          if filename[-7:-4] == 'prt':
              if os.path.exists(dst_dir + dst_file):
-                 #   既にある出力ファイルを読み込む
+                 #   既にある出力ファイルを読み込む、あとで結果ファイルをリネームするフラグを立てる
                  hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
+                 flg_rename = 1
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(ref_file, keep_vba=True)
@@ -82,11 +87,15 @@ class FileChangeHandler(FileSystemEventHandler):
              hamadabook.save(dst_dir + dst_file)
              hamadabook.close()
 
+             if flg_rename:
+                 os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
+
          #  ａｂｓファイル処理
          elif   filename[-7:-4] == 'abs':
              if os.path.exists(dst_dir + dst_file):
-                 #   既にある出力ファイルを読み込む
+                 #   既にある出力ファイルを読み込む、あとで結果ファイルをリネームするフラグを立てる
                  hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
+                 flg_rename = 1
              else:
                  #   濱田さん判定excelを取り込む
                  hamadabook = openpyxl.load_workbook(ref_file, keep_vba=True)
@@ -115,6 +124,10 @@ class FileChangeHandler(FileSystemEventHandler):
              #   excelファイル保存
              hamadabook.save(dst_dir + dst_file)
              hamadabook.close()
+
+             if flg_rename:
+                 os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
+
 
 
      # ファイル変更時のイベント
