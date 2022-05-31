@@ -1,5 +1,19 @@
 #   ###### センサ基本測定データ判定ファイル名.txt　で読み込み元ファイル名を指定する　#######
 # #   ラベルプリンタPC から
+
+#   ロギングの設定（jsonファイルから）
+import json
+from logging import getLogger, config
+from this import d
+
+with open('./log_config.json', 'r') as f:
+    log_conf = json.load(f)
+
+config.dictConfig(log_conf)
+
+logger = getLogger(__name__)
+
+
 # ファイル変更イベント検出のため、watchdogをインポート
 import re
 from watchdog.events import FileSystemEventHandler
@@ -29,14 +43,17 @@ def to_float(s):
 
 # 監視対象ディレクトリ
 target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
+logger.info(target_dir)
 
 # 参照ファイル名
 f = open(target_dir + 'BG\\' + 'センサ基本測定データ判定ファイル名.txt', 'r', encoding='UTF-8')
 ref_file = f.read()
-print(ref_file)
+logger.info(f)
 
 #   出力ファイル名
 dst_file = '★基本測定データの判定.xlsm'
+logger.info(dst_file)
+
 
 #   出力シート名、貼付け開始位置
 h_sheet_name = 'データ貼付け用'         
@@ -52,7 +69,7 @@ class FileChangeHandler(FileSystemEventHandler):
          filepath = event.src_path
          filename = os.path.basename(filepath)
          dst_dir = filepath[:(filepath.rfind('\\')+1)]
-         print('%s created' % filename)
+         logger.info('%s %s created' % (filename,  str(dst_dir)))
 
          #   abs、prt いずれも処理が終わったかどうかを調べるフラグ
          flg_rename = 0
@@ -134,23 +151,24 @@ class FileChangeHandler(FileSystemEventHandler):
      def on_modified(self, event):
          filepath = event.src_path
          filename = os.path.basename(filepath)
-         print('%s changed' % filename)
+         logger.info('%s changed' % filename)
 
      # ファイル削除時のイベント
      def on_deleted(self, event):
          filepath = event.src_path
          filename = os.path.basename(filepath)
-         print('%s deleted' % filename)
+         logger.info('%s deleted' % filename)
 
      # ファイル移動時のイベント
      def on_moved(self, event):
          filepath = event.src_path
          filename = os.path.basename(filepath)
-         print('%s moved' % filename)
+         logger.info('%s moved' % filename)
 
 # コマンド実行の確認
 if __name__ == "__main__":
      # ファイル監視の開始
+     logger.info('Process Started.....')
      event_handler = FileChangeHandler()
      observer = Observer()
      observer.schedule(event_handler, target_dir, recursive=True)
