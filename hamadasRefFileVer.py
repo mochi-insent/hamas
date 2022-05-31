@@ -13,6 +13,8 @@ config.dictConfig(log_conf)
 
 logger = getLogger(__name__)
 
+#   設定ファイルから読込
+from hamadasConfigure import hamasconf
 
 # ファイル変更イベント検出のため、watchdogをインポート
 import re
@@ -42,25 +44,24 @@ def to_float(s):
 
 
 # 監視対象ディレクトリ
-target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\濱田さんEXCEL\\'
+target_dir = hamasconf.target_dir
 logger.info(target_dir)
 
 # 参照ファイル名
-f = open(target_dir + 'BG\\' + 'センサ基本測定データ判定ファイル名.txt', 'r', encoding='UTF-8')
+f = hamasconf.f
 ref_file = f.read()
 logger.info(f)
 
 #   出力ファイル名
-dst_file = '★基本測定データの判定.xlsm'
+dst_file = hamasconf.dst_file
 logger.info(dst_file)
 
-
 #   出力シート名、貼付け開始位置
-h_sheet_name = 'データ貼付け用'         
-start_row_prt = 1
-start_col_prt = 17
-start_row_abs = 1
-start_col_abs = 2
+h_sheet_name = hamasconf.h_sheet_name
+start_row_prt = hamasconf.start_row_prt
+start_col_prt = hamasconf.start_col_prt
+start_row_abs = hamasconf.start_row_abs
+start_col_abs = hamasconf.start_col_abs
 
 # FileSystemEventHandler の継承クラスを作成
 class FileChangeHandler(FileSystemEventHandler):
