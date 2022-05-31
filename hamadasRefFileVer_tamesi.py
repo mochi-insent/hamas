@@ -15,6 +15,7 @@ config.dictConfig(log_conf)
 logger = getLogger(__name__)
 
 
+from hamadasConfigure import hamasconf
 
 
 import re
@@ -44,22 +45,27 @@ def to_float(s):
 
 
 # 監視対象ディレクトリ
-target_dir = '\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\試し\\ハートビート\\ロギング\\'
+target_dir = hamasconf.target_dir
+logger.info(target_dir)
 
 # 参照ファイル名
-f = open(target_dir + 'BG\\' + 'センサ基本測定データ判定ファイル名.txt', 'r', encoding='UTF-8')
+f = hamasconf.f
 ref_file = f.read()
-print(ref_file)
+logger.info(f)
 
 #   出力ファイル名
-dst_file = '★基本測定データの判定.xlsm'
+dst_file = hamasconf.dst_file
+logger.info(dst_file)
 
 #   出力シート名、貼付け開始位置
-h_sheet_name = 'データ貼付け用'
-start_row_prt = 1
-start_col_prt = 17
-start_row_abs = 1
-start_col_abs = 2
+h_sheet_name = hamasconf.h_sheet_name
+start_row_prt = hamasconf.start_row_prt
+start_col_prt = hamasconf.start_col_prt
+start_row_abs = hamasconf.start_row_abs
+start_col_abs = hamasconf.start_col_abs
+
+path = hamasconf.path
+logger.info(path)
 
 # FileSystemEventHandler の継承クラスを作成
 class FileChangeHandler(FileSystemEventHandler):
@@ -167,7 +173,7 @@ class FileChangeHandler(FileSystemEventHandler):
 # コマンド実行の確認
 if __name__ == "__main__":
      # ファイル監視の開始
-     logger.info('Process Start!')
+     logger.info('Process Started.....')
      event_handler = FileChangeHandler()
      observer = Observer()
      observer.schedule(event_handler, target_dir, recursive=True)
@@ -175,7 +181,11 @@ if __name__ == "__main__":
      # 処理が終了しないようスリープを挟んで無限ループ
      try:
          while True:
-             time.sleep(0.1)
+             time.sleep(0.2)
+             u = str(time.time())
+             f = open(path, 'w')
+             f.write(u)
+             f.close
      except KeyboardInterrupt:
          observer.stop()
      observer.join()
