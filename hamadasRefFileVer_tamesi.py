@@ -6,6 +6,7 @@
 #   ロギングの設定（jsonファイルから）
 import json
 from logging import getLogger, config
+from this import d
 
 with open('./log_config.json', 'r') as f:
     log_conf = json.load(f)
@@ -81,6 +82,8 @@ class FileChangeHandler(FileSystemEventHandler):
 
          #  ｐｒｔファイル処理
          if filename[-7:-4] == 'prt':
+             dst_file = '★'+ filename[:-8] + '.xlsm'
+             print(dst_file)
              if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む、あとで結果ファイルをリネームするフラグを立てる
                  hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
@@ -114,6 +117,7 @@ class FileChangeHandler(FileSystemEventHandler):
 
          #  ａｂｓファイル処理
          elif   filename[-7:-4] == 'abs':
+             dst_file = '★'+ filename[:-8] + '.xlsm'
              if os.path.exists(dst_dir + dst_file):
                  #   既にある出力ファイルを読み込む、あとで結果ファイルをリネームするフラグを立てる
                  hamadabook = openpyxl.load_workbook(dst_dir + dst_file, keep_vba=True)
