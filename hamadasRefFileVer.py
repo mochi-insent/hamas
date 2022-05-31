@@ -63,6 +63,10 @@ start_col_prt = hamasconf.start_col_prt
 start_row_abs = hamasconf.start_row_abs
 start_col_abs = hamasconf.start_col_abs
 
+#   ハートビート用タイムスタンプの書き込み先
+path = hamasconf.path
+logger.info(path)
+
 # FileSystemEventHandler の継承クラスを作成
 class FileChangeHandler(FileSystemEventHandler):
      # ファイル作成時のイベント
@@ -177,7 +181,11 @@ if __name__ == "__main__":
      # 処理が終了しないようスリープを挟んで無限ループ
      try:
          while True:
-             time.sleep(0.1)
+             time.sleep(0.2)
+             u = str(time.time())
+             f = open(path, 'w')
+             f.write(u)
+             f.close
      except KeyboardInterrupt:
          observer.stop()
      observer.join()
