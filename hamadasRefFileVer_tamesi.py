@@ -74,7 +74,7 @@ class FileChangeHandler(FileSystemEventHandler):
          filepath = event.src_path
          filename = os.path.basename(filepath)
          dst_dir = filepath[:(filepath.rfind('\\')+1)]
-         logger.info('%s created' % filename)
+         logger.info('%s %s created' % (filename,  str(dst_dir)))
 
          #   abs、prt いずれも処理が終わったかどうかを調べるフラグ
          flg_rename = 0
