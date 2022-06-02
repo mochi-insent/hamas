@@ -1,12 +1,20 @@
 #   ###### センサ基本測定データ判定ファイル名.txt　で読み込み元ファイル名を指定する　#######
 # #   ラベルプリンタPC から
 
+#   インポートサーチパス追加
+import sys
+scrpath = __file__
+scrpath_dir = scrpath[:(scrpath.rfind('\\')+1)]
+print(scrpath_dir)
+sys.path.append(scrpath)
+
+
 #   ロギングの設定（jsonファイルから）
 import json
 from logging import getLogger, config
 from this import d
 
-with open('./log_config.json', 'r') as f:
+with open(scrpath_dir + 'log_config.json', 'r') as f:
     log_conf = json.load(f)
 
 config.dictConfig(log_conf)
