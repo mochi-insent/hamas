@@ -53,8 +53,9 @@ ref_file = f.read()
 logger.info(f)
 
 #   出力ファイル名
-dst_file = hamasconf.dst_file
-logger.info(dst_file)
+#   出力ファイル名はprt,absファイル名を使うことにした
+#    dst_file = hamasconf.dst_file
+#    logger.info(dst_file)
 
 #   出力シート名、貼付け開始位置
 h_sheet_name = hamasconf.h_sheet_name
