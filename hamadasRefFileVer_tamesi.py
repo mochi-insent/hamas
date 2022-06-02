@@ -1,7 +1,6 @@
 #   ######  (疑似)Heart Beatを実装するための試し ######
 #   ###### センサ基本測定データ判定ファイル名.txt　で読み込み元ファイル名を指定する　#######
 # #   ラベルプリンタPC から
-# ファイル変更イベント検出のため、watchdogをインポート
 
 #   インポートサーチパス追加
 import sys
@@ -22,10 +21,10 @@ config.dictConfig(log_conf)
 
 logger = getLogger(__name__)
 
-
+#   設定ファイルから読込
 from hamadasConfigure_tamesi import hamasconf
 
-
+# ファイル変更イベント検出のため、watchdogをインポート
 import re
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -73,6 +72,7 @@ start_col_prt = hamasconf.start_col_prt
 start_row_abs = hamasconf.start_row_abs
 start_col_abs = hamasconf.start_col_abs
 
+#   ハートビート用タイムスタンプの書き込み先
 path = hamasconf.path
 logger.info(path)
 
