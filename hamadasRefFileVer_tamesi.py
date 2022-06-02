@@ -8,7 +8,7 @@ import json
 from logging import getLogger, config
 from this import d
 
-with open('./log_config.json', 'r') as f:
+with open('./log_config_tamesi.json', 'r') as f:
     log_conf = json.load(f)
 
 config.dictConfig(log_conf)
@@ -16,7 +16,7 @@ config.dictConfig(log_conf)
 logger = getLogger(__name__)
 
 
-from hamadasConfigure import hamasconf
+from hamadasConfigure_tamesi import hamasconf
 
 
 import re
@@ -55,8 +55,9 @@ ref_file = f.read()
 logger.info(f)
 
 #   出力ファイル名
-dst_file = hamasconf.dst_file
-logger.info(dst_file)
+#   出力ファイル名はprt,absファイル名を使うことにした
+#    dst_file = hamasconf.dst_file
+#    logger.info(dst_file)
 
 #   出力シート名、貼付け開始位置
 h_sheet_name = hamasconf.h_sheet_name
