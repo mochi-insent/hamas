@@ -8,7 +8,6 @@ scrpath_dir = scrpath[:(scrpath.rfind('\\')+1)]
 print(scrpath_dir)
 sys.path.append(scrpath)
 
-
 #   ロギングの設定（jsonファイルから）
 import json
 from logging import getLogger, config
@@ -120,7 +119,14 @@ class FileChangeHandler(FileSystemEventHandler):
              hamadabook.close()
 
              if flg_rename:
-                 os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
+                 try:         
+                     os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
+                 except:
+                     try:
+                         os.rename(dst_dir + dst_file, dst_dir + '★上書きを避けて別ファイルを作ります' + dst_file)
+                         logger.error('%s rename' % dst_file)
+                     except:
+                         logger.error('%s rename duble error' % dst_file)
 
          #  ａｂｓファイル処理
          elif   filename[-7:-4] == 'abs':
@@ -159,8 +165,14 @@ class FileChangeHandler(FileSystemEventHandler):
              hamadabook.close()
 
              if flg_rename:
-                 os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
-
+                 try:
+                     os.rename(dst_dir + dst_file, dst_dir + '★' + dst_file)
+                 except:
+                     try:
+                         os.rename(dst_dir + dst_file, dst_dir + '★上書きを避けて別ファイルを作ります' + dst_file)
+                         logger.error('%s rename' % dst_file)
+                     except:
+                         logger.error('%s rename duble error' % dst_file)
 
 
      # ファイル変更時のイベント
