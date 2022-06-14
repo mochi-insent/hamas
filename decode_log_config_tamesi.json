@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "simple": {
+      "format": "%(asctime)s %(name)s:%(lineno)s %(funcName)s [%(levelname)s]: %(message)s"
+    }
+  },
+  "handlers": {
+    "consoleHandler": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "formatter": "simple",
+      "stream": "ext://sys.stdout"
+    },
+    "fileHandler": {
+      "class": "logging.FileHandler",
+      "level": "INFO",
+      "formatter": "simple",
+      "filename": "\\\\192.168.24.27\\disk1\\New共通\\生産部\\品質保証\\05_生産\\02_生産管理\\02_工程管理\\測定値記録自動化\\試し\\ハートビート\\BG\\log_.txt"
+    }
+  },
+  "loggers": {
+    "__main__": {
+      "level": "DEBUG",
+      "handlers": [
+        "consoleHandler",
+        "fileHandler"
+      ],
+      "propagate": false
+    },
+    "same_hierarchy": {
+      "level": "DEBUG",
+      "handlers": [
+        "consoleHandler",
+        "fileHandler"
+      ],
+      "propagate": false
+    },
+    "lower.sub": {
+      "level": "DEBUG",
+      "handlers": [
+        "consoleHandler",
+        "fileHandler"
+      ],
+      "propagate": false
+    }
+  },
+  "root": {
+    "level": "INFO"
+  }
+}
